@@ -1,11 +1,14 @@
+# Variables
+MAIN_PKG := ./cmd/hashGo
+LDFLAGS  := -ldflags "-s -w"
+
+# Default mode
+.DEFAULT_GOAL := build
+
 .PHONY: build
 build:
-	go build ./cmd/hashGo
-	./hashGo.exe
+	go build $(LDFLAGS) $(MAIN_PKG)
 
-.PHONY: test
-test:
-	go build ./cmd/hashGo
-	./hashGo.exe --path ./Makefile --format sha256
-
-.DEFAULT_GOAL := build
+.PHONY: run
+run: build
+	./hashGo.exe --path ./Makefile --format md5
