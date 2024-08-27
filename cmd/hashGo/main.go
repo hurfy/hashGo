@@ -1,38 +1,62 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"github.com/spf13/pflag"
-	"hashGo/internal/app/hasher"
+	"hashGo/internal/app/files"
+	"hashGo/internal/app/json"
 )
 
 var (
-	path, format string
-	subDirs      bool
+	inputPath, outputPath, format string
+	subDirs, show, save           bool
 )
 
 func configureFlags() {
-	// TODO: Change default values in the future
-	pflag.StringVarP(&path, "path", "p", "./Makefile", "Path to directory")
-	pflag.StringVarP(&format, "format", "f", "md5", "Output format (md5, sha1, sha256, sha512)")
-	pflag.BoolVarP(&subDirs, "subdirs", "s", false, "Include subdirectories")
+	flag.StringVar(&inputPath, "p", "./", "Path to directory")
+	flag.StringVar(&format, "f", "md5", "Output format (md5, sha1, sha256, sha512)")
+	flag.BoolVar(&show, "o", false, "Show output")
+	flag.BoolVar(&subDirs, "sd", false, "Include subdirectories")
+	flag.BoolVar(&save, "s", false, "Save output to file")
+	flag.StringVar(&outputPath, "op", "./output.json", "Path to output file")
 
-	pflag.Parse()
+	flag.Parse()
+}
+
+// hashFiles : ...
+func hashFiles() error {
+	var res = files.HashDirectory(inputPath, &subDirs)
+
+	// Show output
+	if show {
+		for k, v := range res {
+			fmt.Printf("%s: %s\n", k, v)
+		}
+	}
+
+	// Save to json
+	if save {
+		err := json.SaveJSON(&outputPath, res)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	return nil
 }
 
 func main() {
 	// Configure flags
 	configureFlags()
 
-	// Temporary function
-	hash, err := hasher.GenerateHash(path, format)
+	// Hash files
+	err := hashFiles()
 	if err != nil {
 		fmt.Println(err)
-		return
+	} else {
+		fmt.Println("Done!\nPress Enter to exit...")
 	}
-	fmt.Printf("Hash: %s\n", hash)
 
-	// Temporary delay
-	fmt.Println("\nSuccess! Press Enter to exit: ")
+	// End
 	fmt.Scanln()
 }
