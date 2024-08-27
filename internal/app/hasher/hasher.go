@@ -11,7 +11,7 @@ import (
 	"os"
 )
 
-// initializeAlgorithm ...
+// initializeAlgorithm : initialize hash algorithm
 func initializeAlgorithm(format string) hash.Hash {
 	var hashAlgorithm hash.Hash
 
@@ -32,18 +32,18 @@ func initializeAlgorithm(format string) hash.Hash {
 	return hashAlgorithm
 }
 
-// GenerateHash : generates a hash of the given file path using the specified format.
+// GenerateHash : generates a hash of the given file path using the specified format
 func GenerateHash(path, format string) (string, error) {
 	var hashAlgo = initializeAlgorithm(format)
 
-	// Read the file
+	// read the file
 	file, err := os.Open(path)
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
-	// Generate hash-sum in bytes
+	// generate hash-sum in bytes
 	if _, err := io.Copy(hashAlgo, file); err != nil {
 		return "", err
 	}

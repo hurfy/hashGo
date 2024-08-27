@@ -12,6 +12,7 @@ var (
 	subDirs, show, save           bool
 )
 
+// configureFlags : configures and parses flags
 func configureFlags() {
 	flag.StringVar(&inputPath, "p", "./", "Path to directory")
 	flag.StringVar(&format, "f", "md5", "Output format (md5, sha1, sha256, sha512)")
@@ -23,7 +24,7 @@ func configureFlags() {
 	flag.Parse()
 }
 
-// hashFiles : ...
+// hashFiles : basic hashing function, responsible for hashing, output to console, saving data to file
 func hashFiles() error {
 	var res = files.HashDirectory(inputPath, &subDirs)
 
