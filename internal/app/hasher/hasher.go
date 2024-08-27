@@ -34,7 +34,7 @@ func initializeAlgorithm(format string) hash.Hash {
 
 // GenerateHash : generates a hash of the given file path using the specified format.
 func GenerateHash(path, format string) (string, error) {
-	var hashAlgo hash.Hash = initializeAlgorithm(format)
+	var hashAlgo = initializeAlgorithm(format)
 
 	// Read the file
 	file, err := os.Open(path)
