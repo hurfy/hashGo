@@ -33,14 +33,14 @@ func hashFiles() error {
 		return err
 	}
 
-	// Show output
+	// show output
 	if show {
 		for k, v := range hashes {
 			fmt.Printf("%s: %s\n", k, v)
 		}
 	}
 
-	// Save to json
+	// save to json
 	if save {
 		if err := hashes.SaveAsJson(&outputPath); err != nil {
 			return err
@@ -51,16 +51,16 @@ func hashFiles() error {
 }
 
 func main() {
-	// Configure flags
+	// configure flags
 	configureFlags()
 
-	// Hash files
+	// hash files
 	if err := hashFiles(); err != nil {
 		fmt.Println(err, "\nPress Enter to exit...")
 	} else {
 		fmt.Println("Done!\nPress Enter to exit...")
 	}
 
-	// End
+	// end
 	fmt.Scanln()
 }
