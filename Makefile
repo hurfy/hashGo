@@ -10,6 +10,6 @@ build:
 
 run:
 	go build $(MAIN_PKG)
-	./hashGo.exe -p D:\Games\m2net -f md5 -sd -o -s -op ./output.json
+	./hashGo.exe -p D:\Games\m2net -f sha256 -sd -o -s -op ./output.json
 
 .PHONY: build run
