@@ -7,8 +7,8 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"hash"
+	"hashGo/internal/types"
 	"io"
-	"os"
 )
 
 // initializeAlgorithm : initialize hash algorithm
@@ -32,19 +32,18 @@ func initializeAlgorithm(format string) hash.Hash {
 	return hashAlgorithm
 }
 
-// GenerateHash : generates a hash of the given file path using the specified format
-func GenerateHash(path, format string) (string, error) {
+// GenerateHash : ...
+func GenerateHash(file types.File, format string) (string, error) {
 	var hashAlgo = initializeAlgorithm(format)
 
 	// read the file
-	file, err := os.Open(path)
+	data, err := file.Read()
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
 
 	// generate hash-sum in bytes
-	if _, err := io.Copy(hashAlgo, file); err != nil {
+	if _, err := io.Copy(hashAlgo, data); err != nil {
 		return "", err
 	}
 	hashInBytes := hashAlgo.Sum(nil)

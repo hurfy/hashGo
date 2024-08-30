@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"hashGo/internal/app/files"
-	"hashGo/internal/app/json"
+	"hashGo/internal/types"
 )
 
 var (
@@ -26,20 +26,24 @@ func configureFlags() {
 
 // hashFiles : basic hashing function, responsible for hashing, output to console, saving data to file
 func hashFiles() error {
-	var res = files.HashDirectory(inputPath, &subDirs)
+	var hashes = make(types.HashMap)
+
+	err := files.HashDirectory(&hashes, &inputPath, &subDirs, &format)
+	if err != nil {
+		return err
+	}
 
 	// Show output
 	if show {
-		for k, v := range res {
+		for k, v := range hashes {
 			fmt.Printf("%s: %s\n", k, v)
 		}
 	}
 
 	// Save to json
 	if save {
-		err := json.SaveJSON(&outputPath, res)
-		if err != nil {
-			fmt.Println(err)
+		if err := hashes.SaveAsJson(&outputPath); err != nil {
+			return err
 		}
 	}
 
@@ -51,9 +55,8 @@ func main() {
 	configureFlags()
 
 	// Hash files
-	err := hashFiles()
-	if err != nil {
-		fmt.Println(err)
+	if err := hashFiles(); err != nil {
+		fmt.Println(err, "\nPress Enter to exit...")
 	} else {
 		fmt.Println("Done!\nPress Enter to exit...")
 	}

@@ -2,79 +2,50 @@ package files
 
 import (
 	"hashGo/internal/app/hasher"
-	"os"
+	"hashGo/internal/types"
 	"path/filepath"
 )
 
-// isDirectory : is the file a directory?
-func isDirectory(path string) (bool, error) {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false, err
-	}
-
-	return info.IsDir(), nil
-}
-
-// extendMap : extends the map by adding a new key:value pair
-func extendMap(dMap, nMap map[string]string) {
-	for k, v := range nMap {
-		(dMap)[k] = v
-	}
-}
-
-// readDirectory : reading a directory, getting a list of files inside
-func readDirectory(path string) ([]os.FileInfo, error) {
-	// check if the path is a directory
-	if _, err := isDirectory(path); err != nil {
-		return nil, err
-	}
-
-	// try to open the directory
-	dir, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-
-	// try to read file list from the directory
-	files, err := dir.Readdir(0)
-	if err != nil {
-		return nil, err
-	}
-
-	return files, nil
-}
-
 // HashDirectory : hashing of all files inside the directory, will be called recursively if subDirs = true
-func HashDirectory(path string, subDirs *bool) map[string]string {
-	var hashMap = make(map[string]string)
+func HashDirectory(hashes *types.HashMap, path *string, subDirs *bool, format *string) error {
+	var directory = types.File(*path)
+
+	// is the path a directory?
+	isDir, err := directory.IsDirectory()
+	if !isDir || err != nil {
+		return err
+	}
+
+	// try to open
+	dir, err := directory.Read()
+	if err != nil {
+		return err
+	}
 
 	// try to read the directory
-	files, err := readDirectory(path)
+	files, err := directory.ReadDirectory(*dir)
 	if err != nil {
-		return hashMap
+		return err
 	}
 
 	// hash files
 	for _, v := range files {
-		// create file path
-		var filePath = filepath.Join(path, v.Name())
+		var filePath = filepath.Join(*path, v.Name())
 
 		if *subDirs && v.IsDir() {
 			// recursive hashMap extension
-			if _map := HashDirectory(filePath, subDirs); _map != nil {
-				extendMap(hashMap, _map)
+			if err := HashDirectory(hashes, &filePath, subDirs, format); err != nil {
+				return err
 			}
 		} else {
 			// generate hash
-			hash, err := hasher.GenerateHash(filePath, "md5")
-			if err != nil {
+			if hash, err := hasher.GenerateHash(types.File(filePath), *format); err != nil {
 				continue
+			} else {
+				hashes.Append(filePath, hash)
 			}
-
-			hashMap[filePath] = hash
 		}
 	}
 
-	return hashMap
+	return nil
 }
