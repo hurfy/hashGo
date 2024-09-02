@@ -7,46 +7,38 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"hash"
-	"hashGo/internal/types"
 	"io"
+	"os"
 )
 
-// initializeAlgorithm : initialize hash algorithm
-func initializeAlgorithm(format string) hash.Hash {
-	var hashAlgorithm hash.Hash
-
-	switch format {
-	case "sha1":
-		hashAlgorithm = sha1.New()
-
-	case "sha256":
-		hashAlgorithm = sha256.New()
-
-	case "sha512":
-		hashAlgorithm = sha512.New()
-
-	default:
-		hashAlgorithm = md5.New()
+// InitializeAlgorithm : initialize hash algorithm
+func InitializeAlgorithm(format string) hash.Hash {
+	algorithms := map[string]func() hash.Hash{
+		"sha1":   sha1.New,
+		"sha256": sha256.New,
+		"sha512": sha512.New,
 	}
 
-	return hashAlgorithm
+	if algo, ok := algorithms[format]; !ok {
+		return md5.New()
+	} else {
+		return algo()
+	}
 }
 
 // GenerateHash : ...
-func GenerateHash(file types.File, format string) (string, error) {
-	var hashAlgo = initializeAlgorithm(format)
-
+func GenerateHash(path string, format hash.Hash) string {
 	// read the file
-	data, err := file.Read()
+	data, err := os.Open(path)
 	if err != nil {
-		return "", err
+		return ""
 	}
 
 	// generate hash-sum in bytes
-	if _, err := io.Copy(hashAlgo, data); err != nil {
-		return "", err
+	if _, err := io.Copy(format, data); err != nil {
+		return ""
 	}
-	hashInBytes := hashAlgo.Sum(nil)
+	hashInBytes := format.Sum(nil)
 
-	return hex.EncodeToString(hashInBytes), nil
+	return hex.EncodeToString(hashInBytes)
 }

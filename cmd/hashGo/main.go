@@ -3,47 +3,51 @@ package main
 import (
 	"flag"
 	"fmt"
+	"hash"
 	"hashGo/internal/app/files"
-	"hashGo/internal/types"
+	"hashGo/internal/app/hasher"
 )
 
-var (
-	inputPath, outputPath, format string
-	subDirs, show, save           bool
-)
+type Config struct {
+	inputPath  string
+	outputPath string
+	subDirs    bool
+	format     string
+}
+
+// initHashAlgo : ...
+func (c *Config) initHashAlgo() hash.Hash {
+	return hasher.InitializeAlgorithm(c.format)
+}
 
 // configureFlags : configures and parses flags
-func configureFlags() {
-	flag.StringVar(&inputPath, "p", "./", "Path to directory")
-	flag.StringVar(&format, "f", "md5", "Output format (md5, sha1, sha256, sha512)")
-	flag.BoolVar(&show, "o", false, "Show output")
-	flag.BoolVar(&subDirs, "sd", false, "Include subdirectories")
-	flag.BoolVar(&save, "s", false, "Save output to file")
-	flag.StringVar(&outputPath, "op", "./output.json", "Path to output file")
+func configureFlags() *Config {
+	var config = new(Config)
 
+	flag.StringVar(&config.inputPath, "p", "./", "Root directory")
+	flag.StringVar(&config.outputPath, "o", "", "Path to output file")
+	flag.StringVar(&config.format, "f", "md5", "Hash format[md5, sha1, sha256, sha512]")
+	flag.BoolVar(&config.subDirs, "s", false, "Include subdirectories")
 	flag.Parse()
+
+	return config
 }
 
 // hashFiles : basic hashing function, responsible for hashing, output to console, saving data to file
-func hashFiles() error {
-	var hashes = make(types.HashMap)
-
-	err := files.HashDirectory(&hashes, &inputPath, &subDirs, &format)
+func hashFiles(config *Config) error {
+	hashes, err := files.HashDirectory(config.inputPath, config.subDirs, config.initHashAlgo())
 	if err != nil {
 		return err
 	}
 
-	// show output
-	if show {
+	// if the path to output file is not specified, we will print result
+	if config.outputPath != "" {
+		if err := hashes.SaveAsJson(config.outputPath); err != nil {
+			return err
+		}
+	} else {
 		for k, v := range hashes {
 			fmt.Printf("%s: %s\n", k, v)
-		}
-	}
-
-	// save to json
-	if save {
-		if err := hashes.SaveAsJson(&outputPath); err != nil {
-			return err
 		}
 	}
 
@@ -51,16 +55,9 @@ func hashFiles() error {
 }
 
 func main() {
-	// configure flags
-	configureFlags()
+	var config = configureFlags()
 
-	// hash files
-	if err := hashFiles(); err != nil {
-		fmt.Println(err, "\nPress Enter to exit...")
-	} else {
-		fmt.Println("Done!\nPress Enter to exit...")
+	if err := hashFiles(config); err != nil {
+		panic(err.Error())
 	}
-
-	// end
-	fmt.Scanln()
 }
