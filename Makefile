@@ -3,13 +3,15 @@ MAIN_PKG := ./cmd/hashGo
 LDFLAGS  := -ldflags "-s -w"
 
 # Default mode
-.DEFAULT_GOAL := build
+.DEFAULT_GOAL := run
 
 build:
 	go build $(LDFLAGS) $(MAIN_PKG)
 
 run:
-	go build $(MAIN_PKG)
-	./hashGo.exe -p D:\Games\m2net -f sha256 -sd -o -s -op ./output.json
+	go run $(MAIN_PKG) -f md5 -s -p D:\Games\m2net
 
-.PHONY: build run
+test:
+	go test -v $(MAIN_PKG)
+
+.PHONY: build run test
