@@ -12,6 +12,7 @@ import (
 // HashDirectory : ...
 func HashDirectory(config *types.Config) (types.HashMap, error) {
 	var hashes = make(types.HashMap)
+	var isExcNotEmpty = len(config.ExcDirs) > 0
 
 	if err := fs.WalkDir(
 		os.DirFS(config.InputPath),
@@ -27,7 +28,7 @@ func HashDirectory(config *types.Config) (types.HashMap, error) {
 			}
 
 			// excluded
-			if utils.Contains(config.ExcDirs, path) {
+			if isExcNotEmpty && utils.Contains(&config.ExcDirs, path) {
 				return fs.SkipDir
 			}
 

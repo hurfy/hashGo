@@ -1,7 +1,7 @@
 package utils
 
-func Contains(slice []string, str string) bool {
-	for _, v := range slice {
+func Contains(slice *[]string, str string) bool {
+	for _, v := range *slice {
 		if v == str {
 			return true
 		}
