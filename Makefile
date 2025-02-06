@@ -9,7 +9,7 @@ build:
 	go build $(LDFLAGS) $(MAIN_PKG)
 
 run:
-	go run $(MAIN_PKG) -f md5 -s -p D:\Games\m2net
+	go run $(MAIN_PKG) -f md5 -s
 
 test:
 	go test -v $(MAIN_PKG)
