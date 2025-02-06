@@ -1,5 +1,5 @@
 <div align="center">
-    <a href="https://github.com/hurfy/hashGo"><img src="" alt="hashGo" /></a>
+    <a href="https://github.com/hurfy/hashGo"><img src="https://github.com/user-attachments/assets/3e6b9ae4-6008-4e86-95f1-d6810ea89914" alt="hashGo" /></a>
 </div>
 
 <div align="center">
