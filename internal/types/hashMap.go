@@ -9,7 +9,7 @@ type HashMap map[string]string
 
 // serializeToJson : ...
 func (hm *HashMap) serializeToJson() ([]byte, error) {
-	jsonString, err := json.Marshal(*hm)
+	jsonString, err := json.MarshalIndent(*hm, "", "\t")
 	if err != nil {
 		return nil, err
 	}

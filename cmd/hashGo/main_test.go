@@ -6,7 +6,7 @@ import (
 
 var config = Config{
 	inputPath:  "./",
-	outputPath: "",
+	outputFile: "",
 	format:     "md5",
 	subDirs:    true,
 }

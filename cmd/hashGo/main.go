@@ -4,13 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"hash"
+	"strings"
 	"hashGo/internal/app/files"
 	"hashGo/internal/app/hasher"
 )
 
 type Config struct {
 	inputPath  string
-	outputPath string
+	outputFile string
 	subDirs    bool
 	format     string
 }
@@ -25,7 +26,7 @@ func configureFlags() *Config {
 	var config = new(Config)
 
 	flag.StringVar(&config.inputPath, "p", "./", "Root directory")
-	flag.StringVar(&config.outputPath, "o", "", "Path to output file")
+	flag.StringVar(&config.outputFile, "o", "", "Output file name")
 	flag.StringVar(&config.format, "f", "md5", "Hash format[md5, sha1, sha256, sha512]")
 	flag.BoolVar(&config.subDirs, "s", false, "Include subdirectories")
 	flag.Parse()
@@ -41,8 +42,8 @@ func hashFiles(config *Config) error {
 	}
 
 	// if the path to output file is not specified, we will print result
-	if config.outputPath != "" {
-		if err := hashes.SaveAsJson(config.outputPath); err != nil {
+	if config.outputFile != "" {
+		if err := hashes.SaveAsJson(config.outputFile); err != nil {
 			return err
 		}
 	} else {
@@ -56,6 +57,11 @@ func hashFiles(config *Config) error {
 
 func main() {
 	var config = configureFlags()
+
+	// add file extension
+	if !strings.HasSuffix(config.outputFile, ".json") {
+		config.outputFile += ".json"
+	}
 
 	if err := hashFiles(config); err != nil {
 		panic(err.Error())

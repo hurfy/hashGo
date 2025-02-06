@@ -1,10 +1,10 @@
 package files
 
 import (
-	"fmt"
 	"hash"
 	"hashGo/internal/app/hasher"
 	"hashGo/internal/types"
+	"path/filepath"
 	"io/fs"
 	"os"
 )
@@ -20,13 +20,15 @@ func HashDirectory(root string, subDirs bool, format hash.Hash) (types.HashMap, 
 			if err != nil {
 				return err
 			}
+
 			// skip directories if required
 			if !subDirs && path != "." && d.IsDir() {
 				return fs.SkipDir
 			}
+
 			// generate hash if not a directory
 			if !d.IsDir() {
-				fullPath := fmt.Sprintf("%v/%v", root, path)
+				fullPath := filepath.Join(root, path)
 				hashes[fullPath] = hasher.GenerateHash(fullPath, format)
 			}
 
