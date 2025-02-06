@@ -1,20 +1,20 @@
 package files
 
 import (
-	"hash"
 	"hashGo/internal/app/hasher"
+	"hashGo/internal/app/utils"
 	"hashGo/internal/types"
-	"path/filepath"
 	"io/fs"
 	"os"
+	"path/filepath"
 )
 
 // HashDirectory : ...
-func HashDirectory(root string, subDirs bool, format hash.Hash) (types.HashMap, error) {
+func HashDirectory(config *types.Config) (types.HashMap, error) {
 	var hashes = make(types.HashMap)
 
 	if err := fs.WalkDir(
-		os.DirFS(root),
+		os.DirFS(config.InputPath),
 		".",
 		func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
@@ -22,14 +22,19 @@ func HashDirectory(root string, subDirs bool, format hash.Hash) (types.HashMap, 
 			}
 
 			// skip directories if required
-			if !subDirs && path != "." && d.IsDir() {
+			if !config.SubDirs && path != "." && d.IsDir() {
+				return fs.SkipDir
+			}
+
+			// excluded
+			if utils.Contains(config.ExcDirs, path) {
 				return fs.SkipDir
 			}
 
 			// generate hash if not a directory
 			if !d.IsDir() {
-				fullPath := filepath.Join(root, path)
-				hashes[fullPath] = hasher.GenerateHash(fullPath, format)
+				fullPath := filepath.Join(config.InputPath, path)
+				hashes[fullPath] = hasher.GenerateHash(fullPath, config.InitHashAlgo())
 			}
 
 			return nil

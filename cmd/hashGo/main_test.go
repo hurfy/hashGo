@@ -1,14 +1,16 @@
 package main
 
 import (
+	"hashGo/internal/types"
 	"testing"
 )
 
-var config = Config{
-	inputPath:  "./",
-	outputFile: "",
-	format:     "md5",
-	subDirs:    true,
+var config = types.Config{
+	InputPath:  "./",
+	OutputFile: "",
+	Format:     "md5",
+	SubDirs:    true,
+	ExcDirs:    []string{},
 }
 
 func TestOk(t *testing.T) {
